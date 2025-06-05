@@ -11,44 +11,59 @@ const Dashboard = () => {
   const navigate = useNavigate();
   // All hooks must be at the top level
   const [sales, setSales] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [showSalesEntry, setShowSalesEntry] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [loading, setLoading] = useState(false);  const [showSalesEntry, setShowSalesEntry] = useState(false);
+    // Get today's date in YYYY-MM-DD format
+  const getToday = () => {
+    const now = new Date();
+    return now.toISOString().slice(0, 10);
+  };
+  
+  // Always use current date when the component is first loaded
+  const today = getToday();
+  const [selectedDate, setSelectedDate] = useState(today);
   // Worker dashboard hooks (always defined, not conditional)
   const [searchSold, setSearchSold] = useState('');
   const [editId, setEditId] = useState(null);
   const [editForm, setEditForm] = useState({ medicineName: '', quantity: '', rate: '' });
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState('');
-
-  useEffect(() => {
+    useEffect(() => {
     if (!user || user.role !== 'worker') return;
-    setLoading(true);    API.get(`/api/sales/by-date?clinic=${user.clinic}&date=${selectedDate}`)
+      setLoading(true);
+    // Add timezone offset to ensure consistent date handling
+    API.get(`/api/sales/by-date?clinic=${user.clinic}&date=${selectedDate}&timezone=Asia/Karachi`)
       .then(res => {
-        setSales(res.data.map(s => ({
-          _id: s._id, // Ensure _id is present
+        // Trust the backend filtering - no need to filter again in frontend
+        const filteredSales = res.data;
+        
+        setSales(filteredSales.map(s => ({
+          _id: s._id,
           medicine: s.medicineName,
           quantity: s.quantity,
           rate: s.rate,
           total: s.total,
-          // Show date and time
-          dateTime: new Date(s.soldAt).toLocaleString('en-GB', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+          dateTime: new Date(s.soldAt).toLocaleString('en-GB', { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+          })
         })));
         setLoading(false);
       })
       .catch(() => setLoading(false));
-    // eslint-disable-next-line
-  }, [user?.email, showSalesEntry, selectedDate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.email, user?.clinic, showSalesEntry, selectedDate]);
 
   if (!user) {
     navigate('/login');
     return null;
   }
-
   if (user.role === 'admin') {
     return (
       <div className="container-fluid" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0 }}>
-        <div className="container py-4" style={{ maxWidth: 1440 }}>
+        <div className="container py-4" style={{ maxWidth: 1440, marginTop: '70px' }}>
           <div className="row justify-content-center mb-4">
             <div className="col-auto">
               <img
@@ -175,14 +190,16 @@ const Dashboard = () => {
         const found = res.data.find(m => m.name.toLowerCase() === medicineName.toLowerCase());
         if (!found) throw new Error('Medicine not found');
         medicineId = found._id;
-      }
+      }      // Use current time - backend will handle timezone
+      const now = new Date();
+      
       await API.put(`/api/sales/${sale._id}`, {
         medicineId,
         medicineName,
         quantity: Number(editForm.quantity),
         rate: Number(editForm.rate),
-        // Update soldAt to current date/time on edit
-        soldAt: new Date().toISOString()
+        // Use current date/time
+        soldAt: now.toISOString()
       });
       // Refresh sales
       API.get(`/api/sales/by-date?clinic=${user.clinic}&date=${selectedDate}`)
@@ -227,10 +244,9 @@ const Dashboard = () => {
     }
     setActionLoading(false);
   };
-
   return (
     <div style={{ width: '100vw', minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0 }}>
-      <div className="container py-4" style={{ maxWidth: 1440 }}>
+      <div className="container py-4" style={{ maxWidth: 1440, marginTop: '70px' }}>
         <div className="row align-items-center mb-4">
           <div className="col-auto">
             <img

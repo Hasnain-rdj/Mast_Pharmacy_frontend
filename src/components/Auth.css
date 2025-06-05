@@ -1,6 +1,6 @@
 .auth-container {
   max-width: 430px;
-  margin: 48px auto;
+  margin: 85px auto 40px auto; /* Top margin to account for navbar height */
   padding: 2.5rem 2rem 2rem 2rem;
   background: #fff;
   border-radius: 22px;
@@ -11,6 +11,8 @@
   transition: box-shadow 0.2s;
   border-top: 8px solid #1976d2;
   animation: fadeIn 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+  position: relative;
+  z-index: 5;
 }
 @keyframes fadeIn {
   from {
@@ -178,4 +180,72 @@ button[type="submit"]:hover {
   border: 2px solid #1565c0;
   outline: none;
   box-shadow: 0 4px 16px rgba(25, 118, 210, 0.13);
+}
+.login-form, .signup-form {
+  margin-top: 150px !important;
+  position: relative;
+  z-index: 5;
+}
+
+@media screen and (max-width: 768px) {
+  .login-form, .signup-form {
+    margin-top: 130px !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .login-form, .signup-form {
+    margin-top: 120px !important;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .auth-container {
+    max-width: 90%;
+    margin: 75px auto 30px auto;
+    padding: 1.5rem 1rem;
+  }
+  
+  .auth-logo {
+    width: 70px;
+    height: 70px;
+    padding: 0.5rem;
+  }
+  
+  .input-group {
+    padding: 0.6rem 1rem;
+  }
+  
+  .input-group input, .input-group select {
+    font-size: 1rem;
+    padding: 0.4rem 0;
+  }
+  
+  button[type="submit"] {
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .auth-container {
+    max-width: 95%;
+    margin: 70px auto 20px auto;
+    padding: 1.5rem 1rem;
+    border-top: 6px solid #1976d2;
+  }
+  
+  .auth-logo {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .input-group {
+    padding: 0.5rem 0.8rem;
+  }
+  
+  button[type="submit"] {
+    padding: 0.7rem;
+    font-size: 0.95rem;
+  }
 }

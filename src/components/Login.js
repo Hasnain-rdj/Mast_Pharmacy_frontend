@@ -18,9 +18,8 @@ const Login = () => {
       }
     }
   }, [navigate]);
-
   return (
-    <div className="auth-container">
+    <div className="auth-container login-form">
       <div className="auth-logo-wrapper">
         <img src="/logo192.png" alt="Mast Pharmacy Logo" className="auth-logo" />
       </div>

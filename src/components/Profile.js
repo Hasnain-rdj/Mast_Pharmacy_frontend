@@ -162,12 +162,11 @@ const Profile = () => {
 
   if (!user) return null;
   const isAdmin = user.role === 'admin';
-
   return (
-    <div className="auth-container" style={{ maxWidth: 500, width: '100%' }}>
+    <div className="auth-container" style={{ maxWidth: 500, width: '100%', marginTop: '90px', zIndex: 1 }}>
       <h2 style={{ color: '#1976d2', fontWeight: 800, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
         <FaUserCircle /> Profile
-      </h2>      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginBottom: 24 }}>        <div onClick={() => fileInput.current.click()} style={{ cursor: 'pointer' }}>
+      </h2><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginBottom: 24 }}>        <div onClick={() => fileInput.current.click()} style={{ cursor: 'pointer' }}>
           <img
             src={profilePic}
             alt="Profile"

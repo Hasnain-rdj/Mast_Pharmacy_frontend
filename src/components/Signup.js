@@ -8,9 +8,8 @@ import './Auth.css';
 
 const Signup = () => {
   const navigate = useNavigate();
-
   return (
-    <div className="auth-container">
+    <div className="auth-container signup-form">
       <div className="auth-logo-wrapper">
         <FaUserCircle className="auth-logo" size={80} />
       </div>
