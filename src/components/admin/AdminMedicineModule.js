@@ -137,8 +137,13 @@ const AdminMedicineModule = () => {
     med.name.toLowerCase().includes(tableSearch.toLowerCase())
   );
 
-  return (
-    <div className="auth-container" style={{ maxWidth: 1100, margin: '0 auto', padding: 24 }}>
+  return (    <div className="auth-container" style={{ 
+        maxWidth: 1100, 
+        margin: '110px auto 40px auto', 
+        padding: 24, 
+        position: 'relative',
+        zIndex: 5
+      }}>
       <h2 style={{ color: '#1976d2', fontWeight: 800, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
         <FaPills /> Medicine Management
       </h2>

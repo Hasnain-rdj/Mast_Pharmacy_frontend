@@ -116,7 +116,7 @@ body, #root, .App {
 
 @media (max-width: 768px) {
   .main-content, .container, .container-fluid {
-    padding-top: 75px !important;
+    padding-top: 100px !important;
   }
 }
 
@@ -137,6 +137,23 @@ table {
 @media screen and (max-width: 768px) {
   .container {
     padding: 0 15px;
+  }
+  
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Improved responsive styles for small screens */
+  .row {
+    margin-left: -10px;
+    margin-right: -10px;
+  }
+  
+  .col, [class*="col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 
   table {

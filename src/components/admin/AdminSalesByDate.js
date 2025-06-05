@@ -42,9 +42,13 @@ const AdminSalesByDate = () => {
         setError('Failed to fetch sales');
       });
   }, [selectedClinic, date]);
-
   return (
-    <div className="container py-4" style={{ maxWidth: 900 }}>
+    <div className="container py-4" style={{ 
+      maxWidth: 900,
+      marginTop: '100px',
+      position: 'relative',
+      zIndex: 5
+    }}>
       <h2 style={{ color: '#1976d2', fontWeight: 900, marginBottom: 24 }}>Sales by Date (Admin)</h2>
       <div className="row g-3 align-items-end mb-4">
         <div className="col-md-5">

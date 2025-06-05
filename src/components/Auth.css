@@ -196,13 +196,19 @@ button[type="submit"]:hover {
 @media screen and (max-width: 480px) {
   .login-form, .signup-form {
     margin-top: 120px !important;
+    width: 90%;
+    padding: 1.5rem 1rem;
+  }
+  
+  .form-title {
+    font-size: 1.5rem;
   }
 }
 
 @media screen and (max-width: 768px) {
   .auth-container {
     max-width: 90%;
-    margin: 75px auto 30px auto;
+    margin: 110px auto 30px auto;
     padding: 1.5rem 1rem;
   }
   
@@ -214,6 +220,16 @@ button[type="submit"]:hover {
   
   .input-group {
     padding: 0.6rem 1rem;
+    
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .table-responsive {
+    overflow-x: auto;
+  }
   }
   
   .input-group input, .input-group select {

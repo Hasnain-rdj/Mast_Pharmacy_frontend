@@ -1,3 +1,18 @@
+/* Global zoom level set to 80% */
+html {
+  zoom: 0.8;
+}
+
+/* Firefox doesn't support zoom property, using transform instead */
+@supports (-moz-appearance:none) {
+  body {
+    transform: scale(0.8);
+    transform-origin: 0 0;
+    width: 125%;
+    min-height: 125vh;
+  }
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

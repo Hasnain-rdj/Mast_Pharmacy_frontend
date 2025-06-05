@@ -33,8 +33,8 @@ const Dashboard = () => {
   const [actionError, setActionError] = useState('');
     useEffect(() => {
     if (!user || user.role !== 'worker') return;
-      setLoading(true);
-    // Add timezone offset to ensure consistent date handling
+      setLoading(true);    // Add timezone offset to ensure consistent date handling
+    // We explicitly use Asia/Karachi timezone for consistency with the business location
     API.get(`/api/sales/by-date?clinic=${user.clinic}&date=${selectedDate}&timezone=Asia/Karachi`)
       .then(res => {
         // Trust the backend filtering - no need to filter again in frontend
@@ -63,11 +63,10 @@ const Dashboard = () => {
   if (!user) {
     navigate('/login');
     return null;
-  }
-  if (user.role === 'admin') {
+  }  if (user.role === 'admin') {
     return (
-      <div className="container-fluid" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0 }}>
-        <div className="container py-4" style={{ maxWidth: 1440, marginTop: '70px' }}>
+      <div className="container-fluid" style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0, display: 'flex', justifyContent: 'center' }}>
+        <div className="container py-4" style={{ maxWidth: 1440, marginTop: '100px', width: '100%' }}>
           <div className="row justify-content-center mb-4">
             <div className="col-auto">
               <img
@@ -247,10 +246,9 @@ const Dashboard = () => {
       setActionError(err.response?.data?.message || 'Failed to delete sale');
     }
     setActionLoading(false);
-  };
-  return (
-    <div style={{ width: '100vw', minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0 }}>
-      <div className="container py-4" style={{ maxWidth: 1440, marginTop: '70px' }}>
+  };  return (
+    <div style={{ width: '100%', minHeight: '100vh', background: 'linear-gradient(135deg, #f3f6fa 60%, #e3eaf2 100%)', padding: 0, margin: 0, display: 'flex', justifyContent: 'center' }}>
+      <div className="container py-4" style={{ maxWidth: 1440, marginTop: '100px', width: '100%' }}>
         <div className="row align-items-center mb-4">
           <div className="col-auto">
             <img

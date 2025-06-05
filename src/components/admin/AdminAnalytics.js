@@ -96,10 +96,15 @@ const AdminAnalytics = () => {
         borderWidth: 1,
       },
     ],
-  };
-
-  return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 0' }}>
+  };  return (
+    <div style={{ 
+      maxWidth: 1200, 
+      margin: '110px auto 40px auto',
+      padding: '20px',
+      position: 'relative',
+      zIndex: 5,
+      overflowX: 'hidden' 
+    }}>
       <h2 style={{ color: '#1976d2', fontWeight: 900, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontSize: 32 }}>
         <FaChartBar /> Platform Analytics
       </h2>
@@ -160,14 +165,22 @@ const AdminAnalytics = () => {
               <div style={{ fontWeight: 800, fontSize: 28 }}>{stats.topMedicines.length}</div>
               <div style={{ color: '#ff9800', fontWeight: 600, fontSize: 16 }}>Top Medicines</div>
             </div>
-          </div>
-          {/* Pie Chart */}
-          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 32, marginBottom: 32 }}>
-            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 18 }}>Top 10 Medicines Sold</h3>
-            {stats.topMedicines.length === 0 ? (
+          </div>          {/* Pie Chart */}
+          <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, marginBottom: 32, minWidth: 280, overflowX: 'auto' }}>
+            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 18, fontSize: 20 }}>Top 10 Medicines Sold</h3>            {stats.topMedicines.length === 0 ? (
               <div style={{ color: '#888', fontWeight: 500, fontSize: 18 }}>No data available.</div>
             ) : (
-              <Pie data={pieData} options={{ plugins: { legend: { position: 'right' } } }} />
+              <div style={{ width: '100%', maxWidth: 800, height: 400, margin: '0 auto' }}>
+                <Pie 
+                  data={pieData} 
+                  options={{
+                    plugins: { legend: { position: 'right' } },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                  }} 
+                  style={{ height: '100%', width: '100%' }}
+                />
+              </div>
             )}
           </div>
           {/* Table */}

@@ -95,10 +95,14 @@ const WorkerAnalytics = () => {
       },
     ],
   };
-
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 0' }}>
-      <h2 style={{ color: '#1976d2', fontWeight: 900, marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, fontSize: 32, flexWrap: 'wrap' }}>
+    <div style={{ 
+      maxWidth: 1200, 
+      margin: '120px auto 40px auto', 
+      padding: '32px 20px',
+      position: 'relative',
+      zIndex: 5
+    }}>      <h2 style={{ color: '#1976d2', fontWeight: 900, marginBottom: 30, marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, fontSize: 32, flexWrap: 'wrap' }}>
         <FaChartBar /> Clinic Analytics
       </h2>
       <div style={{ display: 'flex', gap: 18, marginBottom: 24, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -157,11 +161,10 @@ const WorkerAnalytics = () => {
           </div>
           {/* Pie Chart */}
           <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, marginBottom: 32, minWidth: 280, overflowX: 'auto' }}>
-            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 18, fontSize: 20 }}>Top 10 Medicines Sold</h3>
-            {stats.topMedicines.length === 0 ? (
+            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 18, fontSize: 20 }}>Top 10 Medicines Sold</h3>            {stats.topMedicines.length === 0 ? (
               <div style={{ color: '#888', fontWeight: 500, fontSize: 18 }}>No data available.</div>
             ) : (
-              <div style={{ width: '100%', maxWidth: 600, height: 340, margin: '0 auto' }}>
+              <div style={{ width: '100%', maxWidth: 800, height: 400, margin: '0 auto' }}>
                 <Pie
                   data={pieData}
                   options={{
