@@ -25,14 +25,16 @@ const SalesEntryInline = ({ onEntryComplete }) => {
   const handleSelectMed = med => {
     setSelectedMed(med);
     setSearch(''); // Clear the search field when a medicine is selected
-    setRate(med.price);
-  };  const handleAddSale = async e => {
+    setRate(med.price);  };  const handleAddSale = async e => {
     e.preventDefault();
     if (!selectedMed || !quantity || !rate) return;
     setError('');
-    try {      // Use the current date without any timezone manipulation
-      // Let the server handle it consistently
+    try {
+      // Use the browser's current date/time which respects local timezone
       const now = new Date();
+      
+      console.log(`Adding sale at current time: ${now.toString()}`);
+      console.log(`ISO string: ${now.toISOString()}`);
       
       await API.post('/api/sales', {
         medicineId: selectedMed._id,
@@ -42,7 +44,7 @@ const SalesEntryInline = ({ onEntryComplete }) => {
         rate: Number(rate),
         soldBy: user.email,
         soldByName: user.name,
-        soldAt: now.toISOString(), // Just use the standard ISO string
+        soldAt: now.toISOString(),
       });
       setSelectedMed(null);
       setSearch('');

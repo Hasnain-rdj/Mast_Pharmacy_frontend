@@ -12,13 +12,17 @@ const Dashboard = () => {
   // All hooks must be at the top level
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);  const [showSalesEntry, setShowSalesEntry] = useState(false);
-    // Get today's date in YYYY-MM-DD format
+  // Get today's date in YYYY-MM-DD format respecting browser's timezone
   const getToday = () => {
     const now = new Date();
-    return now.toISOString().slice(0, 10);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
   
   // Always use current date when the component is first loaded
+  // Using local timezone date to ensure proper date display
   const today = getToday();
   const [selectedDate, setSelectedDate] = useState(today);
   // Worker dashboard hooks (always defined, not conditional)
