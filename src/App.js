@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Signup from './components/Signup';
-import Sales from './components/Sales';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import AdminMedicineModule from './components/admin/AdminMedicineModule';
@@ -21,7 +20,8 @@ function App() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/dashboard" element={<Dashboard />} />
         {/* <Route path="/inventory" element={<Inventory />} /> */}
-        <Route path="/sales" element={<Sales />} />
+        {/* Sales functionality is now part of Dashboard */}
+        <Route path="/sales" element={<Navigate to="/dashboard" />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/admin/medicines" element={<AdminMedicineModule />} />
         <Route path="/admin/analytics" element={<AdminAnalytics />} />

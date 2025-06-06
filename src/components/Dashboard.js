@@ -6,8 +6,28 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import API from '../api';
 import SalesEntryInline from './SalesEntryInline';
 
+// Helper to get user from storage with expiry/session fallback
+function getStoredUser() {
+  const expiry = localStorage.getItem('expiry');
+  const now = new Date().getTime();
+  if (expiry && now > Number(expiry)) {
+    // Expired, clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('expiry');
+  }
+  let user = localStorage.getItem('user');
+  let token = localStorage.getItem('token');
+  if (!user || !token) {
+    // Try sessionStorage
+    user = sessionStorage.getItem('user');
+    token = sessionStorage.getItem('token');
+  }
+  return user ? JSON.parse(user) : null;
+}
+
 const Dashboard = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getStoredUser();
   const navigate = useNavigate();
   // All hooks must be at the top level
   const [sales, setSales] = useState([]);

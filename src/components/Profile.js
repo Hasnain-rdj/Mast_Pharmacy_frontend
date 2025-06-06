@@ -4,10 +4,29 @@ import API from '../api';
 import { FaUserCircle, FaClinicMedical, FaEnvelope, FaPills, FaMoneyBillWave, FaChartBar, FaLock } from 'react-icons/fa';
 import './Auth.css';
 
+// Helper to get user from storage with expiry/session fallback
+function getStoredUser() {
+  const expiry = localStorage.getItem('expiry');
+  const now = new Date().getTime();
+  if (expiry && now > Number(expiry)) {
+    // Expired, clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('expiry');
+  }
+  let user = localStorage.getItem('user');
+  let token = localStorage.getItem('token');
+  if (!user || !token) {
+    // Try sessionStorage
+    user = sessionStorage.getItem('user');
+    token = sessionStorage.getItem('token');
+  }
+  return user ? JSON.parse(user) : null;
+}
+
 const Profile = () => {
   const navigate = useNavigate();
-  const storedUser = localStorage.getItem('user');
-  const user = storedUser ? JSON.parse(storedUser) : null;
+  const user = getStoredUser();
   const [profilePic, setProfilePic] = useState(user?.profilePic || '/logo192.png');
   const fileInput = useRef();
   const [stats, setStats] = useState({ totalSold: 0, totalEarned: 0 });

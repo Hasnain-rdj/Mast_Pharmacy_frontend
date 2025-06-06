@@ -1,61 +1,92 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import API from '../api';
 import { FaChartBar, FaFilePdf, FaSearch, FaPills, FaDollarSign, FaListOl } from 'react-icons/fa';
 import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import './Auth.css';
+import { getStoredUser } from '../utils'; // Adjust the import based on your project structure
+import { useNavigate } from 'react-router-dom';
 Chart.register(ArcElement, Tooltip, Legend);
 
 const WorkerAnalytics = () => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ totalSales: 0, totalRevenue: 0, topMedicines: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [month, setMonth] = useState('');
-  // Track if monthly analytics is active
   const [isMonthly, setIsMonthly] = useState(false);
-
-  useEffect(() => {
-    fetchStats();
-    // eslint-disable-next-line
-  }, [user.clinic, fromDate, toDate]);
-
-  // Only run fetchMonthlyStats when month changes and in monthly mode
-  useEffect(() => {
-    if (isMonthly && month) fetchMonthlyStats();
-    // eslint-disable-next-line
-  }, [user.clinic, month, isMonthly]);
-
-  const fetchStats = async () => {
+  const [user, setUser] = useState(null);
+  const fetchStats = useCallback(async (currentUser) => {
+    if (!currentUser) return;
     setLoading(true);
     setError('');
     try {
-      const res = await API.get(`/api/sales/analytics?clinic=${user.clinic}&from=${fromDate}&to=${toDate}`);
+      const res = await API.get(`/api/sales/analytics?clinic=${currentUser.clinic}&from=${fromDate}&to=${toDate}`);
       setStats(res.data);
     } catch (err) {
       setError('Failed to fetch analytics');
       setStats({ totalSales: 0, totalRevenue: 0, topMedicines: [] });
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
     }
     setLoading(false);
-  };
+  }, [fromDate, toDate, navigate]);
 
-  const fetchMonthlyStats = async () => {
-    if (!month) return;
+  const fetchMonthlyStats = useCallback(async (currentUser) => {
+    if (!currentUser || !month) return;
     setLoading(true);
     setError('');
     try {
-      const res = await API.get(`/api/sales/monthly-analytics?clinic=${user.clinic}&month=${month}`);
+      const res = await API.get(`/api/sales/monthly-analytics?clinic=${currentUser.clinic}&month=${month}`);
       setStats(res.data);
     } catch (err) {
       setError('Failed to fetch monthly analytics');
       setStats({ totalSales: 0, totalRevenue: 0, topMedicines: [] });
+      if (err.response?.status === 401) {
+        navigate('/login');
+      }
     }
     setLoading(false);
+  }, [month, navigate]);
+  
+  // Handle authentication and user data
+  useEffect(() => {
+    const storedUser = getStoredUser();
+    if (!storedUser) {
+      navigate('/login');
+    } else {
+      setUser(storedUser);
+    }
+  }, [navigate]);  // Fetch data when filters change
+  useEffect(() => {
+    if (!user) return;
+
+    if (isMonthly && month) {
+      fetchMonthlyStats(user);
+    } else if (fromDate || toDate) {
+      fetchStats(user);
+    }
+  }, [user, isMonthly, month, fromDate, toDate, fetchMonthlyStats, fetchStats]);
+
+  const handleSearchClick = () => {
+    setIsMonthly(false);
+    if (user) {
+      fetchStats(user);
+    }
+  };
+
+  const handleMonthlyClick = () => {
+    setIsMonthly(true);
+    if (user && month) {
+      fetchMonthlyStats(user);
+    }
   };
 
   const handlePDF = async () => {
+    if (!user) return;
     const jsPDF = (await import('jspdf')).default;
     const autoTable = (await import('jspdf-autotable')).default;
     const doc = new jsPDF();
@@ -71,16 +102,6 @@ const WorkerAnalytics = () => {
     doc.save(`analytics_${user.clinic}_${Date.now()}.pdf`);
   };
 
-  const handleMonthlyClick = () => {
-    setIsMonthly(true);
-    // fetchMonthlyStats will be triggered by useEffect
-  };
-
-  const handleSearchClick = () => {
-    setIsMonthly(false);
-    fetchStats();
-  };
-
   // Pie chart data for top medicines
   const pieData = {
     labels: stats.topMedicines.map(m => m.name),
@@ -94,7 +115,21 @@ const WorkerAnalytics = () => {
         borderWidth: 1,
       },
     ],
-  };
+  };  // If user isn't loaded yet, show loading indicator
+  if (!user) {
+    return (
+      <div style={{ 
+        maxWidth: 1200, 
+        margin: '120px auto 40px auto', 
+        padding: '32px 20px',
+        position: 'relative',
+        zIndex: 5
+      }}>
+        <h2>Loading authentication information...</h2>
+      </div>
+    );
+  }
+
   return (
     <div style={{ 
       maxWidth: 1200, 
@@ -104,8 +139,7 @@ const WorkerAnalytics = () => {
       zIndex: 5
     }}>      <h2 style={{ color: '#1976d2', fontWeight: 900, marginBottom: 30, marginTop: 10, display: 'flex', alignItems: 'center', gap: 12, fontSize: 32, flexWrap: 'wrap' }}>
         <FaChartBar /> Clinic Analytics
-      </h2>
-      <div style={{ display: 'flex', gap: 18, marginBottom: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+      </h2>      <div style={{ display: 'flex', gap: 18, marginBottom: 24, alignItems: 'center', flexWrap: 'wrap' }}>
         <label style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>Clinic:</label>
         <span style={{ fontWeight: 700, color: '#1976d2', fontSize: 18 }}>{user.clinic}</span>
         <label style={{ fontWeight: 600 }}>From:</label>

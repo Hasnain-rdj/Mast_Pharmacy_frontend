@@ -3,22 +3,38 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { FaCapsules, FaSignOutAlt, FaUser, FaPills, FaChartBar, FaBars, FaTimes } from 'react-icons/fa';
 import './Navbar.css';
 
+// Helper to get user from storage with expiry/session fallback
+function getStoredUser() {
+  const expiry = localStorage.getItem('expiry');
+  const now = new Date().getTime();
+  if (expiry && now > Number(expiry)) {
+    // Expired, clear localStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('expiry');
+  }
+  let user = localStorage.getItem('user');
+  let token = localStorage.getItem('token');
+  if (!user || !token) {
+    // Try sessionStorage
+    user = sessionStorage.getItem('user');
+    token = sessionStorage.getItem('token');
+  }
+  return user ? JSON.parse(user) : null;
+}
+
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const storedUser = localStorage.getItem('user');
-  let user = null;
-  try {
-    user = storedUser ? JSON.parse(storedUser) : null;
-  } catch (error) {
-    console.error('Failed to parse user data:', error);
-    localStorage.removeItem('user'); // Clear invalid data
-  }
+  const user = getStoredUser();
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('expiry');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     navigate('/login');
   };  // Close menu when clicking on a link
   const handleNavClick = () => {
