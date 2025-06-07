@@ -5,26 +5,7 @@ import './Auth.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import API from '../api';
 import SalesEntryInline from './SalesEntryInline';
-
-// Helper to get user from storage with expiry/session fallback
-function getStoredUser() {
-  const expiry = localStorage.getItem('expiry');
-  const now = new Date().getTime();
-  if (expiry && now > Number(expiry)) {
-    // Expired, clear localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    localStorage.removeItem('expiry');
-  }
-  let user = localStorage.getItem('user');
-  let token = localStorage.getItem('token');
-  if (!user || !token) {
-    // Try sessionStorage
-    user = sessionStorage.getItem('user');
-    token = sessionStorage.getItem('token');
-  }
-  return user ? JSON.parse(user) : null;
-}
+import { getStoredUser } from '../utils';
 
 const Dashboard = () => {
   const user = getStoredUser();

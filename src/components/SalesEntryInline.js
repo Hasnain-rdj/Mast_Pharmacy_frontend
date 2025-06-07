@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
 import './Auth.css';
 import API from '../api';
+import { getStoredUser } from '../utils';
 
 const SalesEntryInline = ({ onEntryComplete }) => {
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = getStoredUser();
   const userClinic = user?.clinic;
   const [search, setSearch] = useState('');
   const [allMedicines, setAllMedicines] = useState([]);
