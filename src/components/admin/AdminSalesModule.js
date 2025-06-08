@@ -6,7 +6,6 @@ import './AdminSalesModule.css';
 import { getStoredUser } from '../../utils';
 import ConfirmDialog from '../common/ConfirmDialog';
 import SalesSummary from './SalesSummary';
-import Tooltip from '../common/Tooltip';
 import LoadingSpinner from '../common/LoadingSpinner';
 
 // Helper: fuzzy/character-sequence match
