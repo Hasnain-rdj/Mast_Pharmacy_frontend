@@ -147,8 +147,7 @@ const AdminAnalytics = () => {
       {loading ? (
         <div>Loading...</div>
       ) : (
-        <>
-          {/* Stat Cards */}
+        <>          {/* Stat Cards */}
           <div style={{ display: 'flex', gap: 32, marginBottom: 32, flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: 220, background: '#f3f6fa', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <FaListOl style={{ color: '#1976d2', fontSize: 32, marginBottom: 8 }} />
@@ -161,11 +160,16 @@ const AdminAnalytics = () => {
               <div style={{ color: '#43a047', fontWeight: 600, fontSize: 16 }}>Total Revenue</div>
             </div>
             <div style={{ flex: 1, minWidth: 220, background: '#f3f6fa', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <FaDollarSign style={{ color: '#9c27b0', fontSize: 32, marginBottom: 8 }} />
+              <div style={{ fontWeight: 800, fontSize: 28 }}>{stats.totalProfit || 0}</div>
+              <div style={{ color: '#9c27b0', fontWeight: 600, fontSize: 16 }}>Total Profit</div>
+            </div>
+            <div style={{ flex: 1, minWidth: 220, background: '#f3f6fa', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <FaPills style={{ color: '#ff9800', fontSize: 32, marginBottom: 8 }} />
               <div style={{ fontWeight: 800, fontSize: 28 }}>{stats.topMedicines.length}</div>
               <div style={{ color: '#ff9800', fontWeight: 600, fontSize: 16 }}>Top Medicines</div>
             </div>
-          </div>          {/* Pie Chart */}
+          </div>{/* Pie Chart */}
           <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, marginBottom: 32, minWidth: 280, overflowX: 'auto' }}>
             <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 18, fontSize: 20 }}>Top 10 Medicines Sold</h3>            {stats.topMedicines.length === 0 ? (
               <div style={{ color: '#888', fontWeight: 500, fontSize: 18 }}>No data available.</div>
@@ -184,33 +188,32 @@ const AdminAnalytics = () => {
             )}
           </div>
           {/* Table */}
-          <div ref={tableRef} style={{ background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, marginTop: 18 }}>
-            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 12 }}>Top Medicines Sold (Table)</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 17 }}>
+          <div ref={tableRef} style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)', padding: 24, marginTop: 18, overflowX: 'auto' }}>
+            <h3 style={{ color: '#1976d2', fontWeight: 700, marginBottom: 16 }}>Top Medicines Sold (Table)</h3>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, fontSize: 16, minWidth: 500 }}>
               <thead>
                 <tr style={{ background: '#e3eaf2' }}>
-                  <th style={{ padding: 12 }}>Medicine</th>
-                  <th style={{ padding: 12 }}>Quantity Sold</th>
-                  <th style={{ padding: 12 }}>Revenue</th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 700, color: '#1976d2', borderTopLeftRadius: 8 }}>Medicine</th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 700, color: '#1976d2' }}>Quantity Sold</th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 700, color: '#1976d2' }}>Revenue</th>
+                  <th style={{ padding: '14px 12px', textAlign: 'left', fontWeight: 700, color: '#1976d2', borderTopRightRadius: 8 }}>Profit</th>
                 </tr>
               </thead>
               <tbody>
                 {stats.topMedicines.length === 0 ? (
-                  <tr><td colSpan="3" style={{ padding: 18, color: '#888' }}>No data available.</td></tr>
+                  <tr><td colSpan="4" style={{ padding: 18, color: '#888', textAlign: 'center' }}>No data available.</td></tr>
                 ) : (
                   stats.topMedicines.map((m, i) => (
-                    <tr key={i}>
-                      <td style={{ padding: 10 }}>{m.name}</td>
-                      <td style={{ padding: 10 }}>{m.quantity}</td>
-                      <td style={{ padding: 10 }}>{m.revenue}</td>
+                    <tr key={i} style={{ background: i % 2 === 0 ? '#f3f6fa' : '#fff' }}>
+                      <td style={{ padding: '12px 10px', fontWeight: 600, color: '#1976d2' }}>{m.name}</td>
+                      <td style={{ padding: '12px 10px' }}>{m.quantity}</td>
+                      <td style={{ padding: '12px 10px' }}>{m.revenue}</td>
+                      <td style={{ padding: '12px 10px' }}>{m.profit || 'N/A'}</td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
-            <div style={{ marginTop: 24, fontWeight: 700, color: '#1976d2', fontSize: 18 }}>
-              Total Sales: {stats.totalSales} &nbsp; | &nbsp; Total Revenue: {stats.totalRevenue}
-            </div>
           </div>
         </>
       )}

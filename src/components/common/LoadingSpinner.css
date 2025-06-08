@@ -1,0 +1,83 @@
+/* d:\Coding\Mast Pharmacy\frontend\src\components\common\LoadingSpinner.css */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner {
+  display: inline-block;
+  position: relative;
+  width: 40px;
+  height: 40px;
+}
+
+.spinner-sm {
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.spinner div {
+  position: absolute;
+  top: 0;
+  width: 33%;
+  height: 33%;
+  border-radius: 50%;
+  animation: spinner 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.spinner-container.primary .spinner div {
+  background: #1976d2;
+}
+
+.spinner-container.secondary .spinner div {
+  background: #6c757d;
+}
+
+.spinner-container.success .spinner div {
+  background: #388e3c;
+}
+
+.spinner-container.danger .spinner div {
+  background: #d32f2f;
+}
+
+.spinner-container.warning .spinner div {
+  background: #f57c00;
+}
+
+.spinner div:nth-child(1) {
+  left: 0;
+  animation-delay: 0s;
+}
+
+.spinner div:nth-child(2) {
+  left: 33%;
+  animation-delay: -0.4s;
+}
+
+.spinner div:nth-child(3) {
+  left: 66%;
+  animation-delay: -0.8s;
+}
+
+.spinner div:nth-child(4) {
+  left: 0%;
+  top: 33%;
+  animation-delay: -0.4s;
+}
+
+@keyframes spinner {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1.0);
+    opacity: 0;
+  }
+}

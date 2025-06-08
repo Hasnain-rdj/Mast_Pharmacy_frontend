@@ -84,7 +84,7 @@ const Dashboard = () => {
             Welcome to the Admin Dashboard
           </div>
           <div className="row justify-content-center mt-4 g-4">
-            <div className="col-12 col-md-6 col-lg-5">
+            <div className="col-12 col-md-6 col-lg-4">
               <div
                 style={{
                   background: '#fff',
@@ -109,7 +109,32 @@ const Dashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="col-12 col-md-6 col-lg-5">
+            <div className="col-12 col-md-6 col-lg-4">
+              <div
+                style={{
+                  background: '#fff',
+                  borderRadius: 18,
+                  boxShadow: '0 4px 24px rgba(25, 118, 210, 0.10)',
+                  padding: '2.2rem 2.5rem',
+                  minWidth: 220,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  transition: 'box-shadow 0.2s, transform 0.15s',
+                  fontWeight: 700,
+                  fontSize: 22,
+                  color: '#1976d2',
+                  border: '2px solid #e3eaf2',
+                }}
+                onClick={() => navigate('/admin/sales')}
+              >
+                <FaCheckCircle style={{ fontSize: 38, marginBottom: 12, color: '#1976d2' }} />
+                <div>Manage Sales</div>
+                <div style={{ fontWeight: 400, fontSize: 16, color: '#555', marginTop: 8 }}>
+                  Sell medicines for any clinic and manage sales records.
+                </div>
+              </div>
+            </div>
+            <div className="col-12 col-md-6 col-lg-4">
               <div
                 style={{
                   background: '#fff',
@@ -128,7 +153,7 @@ const Dashboard = () => {
                 onClick={() => navigate('/admin/analytics')}
               >
                 <FaChartBar style={{ fontSize: 38, marginBottom: 12, color: '#1976d2' }} />
-                <div>Platform Analytics</div>
+                <div>Clinics Analytics</div>
                 <div style={{ fontWeight: 400, fontSize: 16, color: '#555', marginTop: 8 }}>
                   See analytics of all clinics and generate PDF reports.
                 </div>
@@ -266,10 +291,12 @@ const Dashboard = () => {
               Clinic: {user.clinic || 'Main Clinic'}
             </div>
           </div>
-        </div>
-        <div className="mb-4" style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+        </div>        <div className="mb-4" style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
           <button onClick={() => setShowSalesEntry(v => !v)} className="main-action-btn">
             {showSalesEntry ? 'Cancel' : 'Sell Medicine'}
+          </button>
+          <button onClick={() => navigate('/inventory')} className="main-action-btn" style={{ background: '#1976d2' }}>
+            View Medicine Inventory
           </button>
           {/* Show total sales amount for the selected date */}
           <span style={{ fontWeight: 700, color: '#1976d2', fontSize: 18 }}>

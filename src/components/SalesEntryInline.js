@@ -22,11 +22,11 @@ const SalesEntryInline = ({ onEntryComplete }) => {
         .catch(() => setAllMedicines([]));
     }
   }, [userClinic]);
-
   const handleSelectMed = med => {
     setSelectedMed(med);
     setSearch(''); // Clear the search field when a medicine is selected
-    setRate(med.price);  };  const handleAddSale = async e => {
+    setRate(''); // Don't set default price, let clinic worker decide selling price
+  };const handleAddSale = async e => {
     e.preventDefault();
     if (!selectedMed || !quantity || !rate) return;
     setError('');
@@ -96,12 +96,11 @@ const SalesEntryInline = ({ onEntryComplete }) => {
             ))}
           </div>
         )}
-      </div>
-      {selectedMed && (
+      </div>      {selectedMed && (
         <div style={{ background: '#fff', borderRadius: 8, padding: 12, margin: '10px 0', boxShadow: '0 1px 6px #e3eaf2' }}>
           <div><b>Name:</b> {selectedMed.name}</div>
           <div><b>Available:</b> {selectedMed.quantity}</div>
-          <div><b>Default Rate:</b> {selectedMed.price}</div>
+          {/* Default rate hidden from clinic workers */}
         </div>
       )}
       <div className="input-group">

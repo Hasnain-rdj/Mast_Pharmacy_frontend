@@ -3,12 +3,12 @@ import API from '../../api';
 import { FaPills, FaPlus, FaClinicMedical, FaSearch, FaEdit, FaChartBar, FaTrash, FaTimesCircle } from 'react-icons/fa';
 import '../Auth.css';
 
-const AdminMedicineModule = () => {
-  const [medicines, setMedicines] = useState([]);
-  const [form, setForm] = useState({ name: '', quantity: '', price: '', clinic: '' });
+const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState([]);
+  const [form, setForm] = useState({ name: '', quantity: '', purchasePrice: '', clinic: '' });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(''); // Add success message state
   const [search, setSearch] = useState('');
   const [filteredNames, setFilteredNames] = useState([]);
   const [clinics, setClinics] = useState([]);
@@ -82,9 +82,7 @@ const AdminMedicineModule = () => {
     med.name.trim().toLowerCase() === form.name.trim().toLowerCase() &&
     med.clinic === getClinicName(selectedClinic) &&
     (!editingId || med._id !== editingId)
-  );
-
-  const handleSubmit = async e => {
+  );  const handleSubmit = async e => {
     e.preventDefault();
     if (selectedClinic === 'ALL') {
       setShowPopup(true);
@@ -92,49 +90,115 @@ const AdminMedicineModule = () => {
     }
     if (!canModify) return;
     if (medicineExists && !editingId) return;
+    
     setLoading(true);
+    setSuccess(''); // Clear any previous success message
+    setError(''); // Clear any previous error message
+    
     const clinicName = getClinicName(selectedClinic);
+    const medicineData = { ...form, clinic: clinicName };
+    
     try {
       if (editingId) {
-        await API.put(`/api/medicines/${editingId}`, { ...form, clinic: clinicName });
+        // Update medicine
+        const response = await API.put(`/api/medicines/${editingId}`, medicineData);
+        
+        // Update the medicine in local state
+        setMedicines(prevMedicines => 
+          prevMedicines.map(med => 
+            med._id === editingId ? response.data : med
+          )
+        );
+        
+        // Show success message
+        setSuccess(`${medicineData.name} was successfully updated`);
       } else {
-        await API.post('/api/medicines', { ...form, clinic: clinicName });
+        // Add new medicine
+        const response = await API.post('/api/medicines', medicineData);
+        
+        // Add the new medicine to local state
+        setMedicines(prevMedicines => [...prevMedicines, response.data]);
+        
+        // Show success message
+        setSuccess(`${medicineData.name} was successfully added`);
       }
-      setForm({ name: '', quantity: '', price: '', clinic: clinicName });
+        // Reset form and state
+      setForm({ name: '', quantity: '', purchasePrice: '', clinic: clinicName });
       setEditingId(null);
       setShowForm(false);
+      
+      // Auto-clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccess('');
+      }, 5000);
     } catch (err) {
-      setError('Failed to save medicine');
+      console.error('Save error:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to save medicine';
+      setError(`Error: ${errorMessage}`);
     }
+    
     setLoading(false);
   };
 
-  const handleEdit = med => {
-    setForm({
+  const handleEdit = med => {    setForm({
       name: med.name,
       quantity: med.quantity,
-      price: med.price,
+      purchasePrice: med.purchasePrice,
       clinic: med.clinic,
     });
     setEditingId(med._id);
     setSearch(med.name);
     setShowForm(true); // Show form on edit
-  };
-
-  const handleDelete = async id => {
+  };  const handleDelete = async id => {
+    if (!window.confirm('Are you sure you want to delete this medicine?')) {
+      return; // User canceled the deletion
+    }
+    
     setLoading(true);
+    setSuccess(''); // Clear any previous success message
+    setError(''); // Clear any previous error message
+    
     try {
+      // Get medicine name for the success message
+      const medicineToDelete = medicines.find(med => med._id === id);
+      const medicineName = medicineToDelete ? medicineToDelete.name : 'Medicine';
+      
       await API.delete(`/api/medicines/${id}`);
-      // Removed fetchMedicines call, as it's now handled by the useEffect
+      
+      // Update the local state by filtering out the deleted medicine
+      setMedicines(prevMedicines => prevMedicines.filter(med => med._id !== id));
+      
+      // Show success message
+      setSuccess(`${medicineName} was successfully deleted`);
+      
+      // Auto-clear success message after 5 seconds
+      setTimeout(() => {
+        setSuccess('');
+      }, 5000);
     } catch (err) {
-      setError('Failed to delete medicine');
+      console.error('Delete error:', err);
+      const errorMessage = err.response?.data?.message || 'Failed to delete medicine';
+      setError(`Error: ${errorMessage}`);
     }
     setLoading(false);
   };
+  // Helper: fuzzy/character-sequence match (e.g., 'ot' matches 'Oxytocin')
+  function fuzzyMatch(str, pattern) {
+    if (!pattern) return true;
+    str = str.toLowerCase();
+    pattern = pattern.toLowerCase();
+    let j = 0;
+    for (let i = 0; i < str.length && j < pattern.length; i++) {
+      if (str[i] === pattern[j]) j++;
+    }
+    return j === pattern.length;
+  }
 
-  // Filtered medicines for table search
+  // Filtered medicines for table search with case-insensitive and fuzzy search
   const filteredMedicines = medicines.filter(med =>
-    med.name.toLowerCase().includes(tableSearch.toLowerCase())
+    !tableSearch.trim() || 
+    med.name.toLowerCase().includes(tableSearch.toLowerCase()) ||
+    fuzzyMatch(med.name, tableSearch)
   );
 
   return (    <div className="auth-container" style={{ 
@@ -188,9 +252,8 @@ const AdminMedicineModule = () => {
           </div>
           <div className="input-group">
             <input name="quantity" value={form.quantity} onChange={handleChange} placeholder="Quantity" type="number" min="0" required />
-          </div>
-          <div className="input-group">
-            <input name="price" value={form.price} onChange={handleChange} placeholder="Price" type="number" min="0" required />
+          </div>          <div className="input-group">
+            <input name="purchasePrice" value={form.purchasePrice} onChange={handleChange} placeholder="Purchase Price" type="number" min="0" required />
           </div>
           <div style={{ display: 'flex', gap: 16 }}>
             <button
@@ -200,8 +263,7 @@ const AdminMedicineModule = () => {
               style={{ background: '#1976d2', color: '#fff', fontWeight: 700, fontSize: 16 }}
             >
               {editingId ? <><FaEdit /> Edit</> : <><FaPlus /> Add</>}
-            </button>
-            <button type="button" className="main-action-btn" style={{ background: '#e0e0e0', color: '#1976d2', fontWeight: 700, fontSize: 16 }} onClick={() => { setShowForm(false); setEditingId(null); setForm({ name: '', quantity: '', price: '', clinic: selectedClinic }); }}>
+            </button>            <button type="button" className="main-action-btn" style={{ background: '#e0e0e0', color: '#1976d2', fontWeight: 700, fontSize: 16 }} onClick={() => { setShowForm(false); setEditingId(null); setForm({ name: '', quantity: '', purchasePrice: '', clinic: selectedClinic }); }}>
               Cancel
             </button>
           </div>
@@ -210,9 +272,24 @@ const AdminMedicineModule = () => {
               Medicine already exists in this clinic. Please use Edit instead.
             </div>
           )}
-        </form>
-      )}
+        </form>      )}
       {error && <div className="error">{error}</div>}
+      {success && (
+        <div style={{ 
+          backgroundColor: '#e8f5e9', 
+          color: '#2e7d32', 
+          padding: '10px 16px', 
+          borderRadius: 8, 
+          marginBottom: 16, 
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          maxWidth: 600
+        }}>
+          <span style={{ fontSize: '1.2rem' }}>✓</span> {success}
+        </div>
+      )}
       {/* Popup for select clinic warning */}
       {showPopup && (
         <div style={{
@@ -246,11 +323,10 @@ const AdminMedicineModule = () => {
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', maxWidth: 1400, minWidth: 900, margin: '0 auto', borderCollapse: 'collapse', background: '#fff', borderRadius: 12, boxShadow: '0 2px 12px rgba(25, 118, 210, 0.07)' }}>
-              <thead>
-                <tr style={{ background: '#e3eaf2' }}>
+              <thead>                <tr style={{ background: '#e3eaf2' }}>
                   <th style={{ padding: '12px 16px' }}><FaPills /> Name</th>
                   <th style={{ padding: '12px 16px' }}>Quantity</th>
-                  <th style={{ padding: '12px 16px' }}>Price</th>
+                  <th style={{ padding: '12px 16px' }}>Purchase Price</th>
                   <th style={{ padding: '12px 16px' }}><FaClinicMedical /> Clinic</th>
                   <th style={{ padding: '12px 16px' }}>Actions</th>
                 </tr>
@@ -260,7 +336,7 @@ const AdminMedicineModule = () => {
                   <tr key={med._id} style={{ borderBottom: '1px solid #e3eaf2', textAlign: 'center' }}>
                     <td style={{ padding: '10px 12px' }}>{med.name}</td>
                     <td style={{ padding: '10px 12px' }}>{med.quantity}</td>
-                    <td style={{ padding: '10px 12px' }}>{med.price}</td>
+                    <td style={{ padding: '10px 12px' }}>{med.purchasePrice}</td>
                     <td style={{ padding: '10px 12px' }}>{med.clinic}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <button onClick={() => handleEdit(med)} style={{ marginRight: 8, background: '#42a5f5', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaEdit style={{ marginRight: 4 }} /> Edit</button>
