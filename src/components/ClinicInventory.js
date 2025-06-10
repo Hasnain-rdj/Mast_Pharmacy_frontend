@@ -24,9 +24,13 @@ const ClinicInventory = () => {
   const [transferSuccess, setTransferSuccess] = useState('');
   const [allClinics, setAllClinics] = useState([]);
   const [showTransferHistory, setShowTransferHistory] = useState(false);
-  const [transferHistory, setTransferHistory] = useState([]);
-  const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
+  const [transferHistory, setTransferHistory] = useState([]);  const [transferHistoryLoading, setTransferHistoryLoading] = useState(false);
   const [transferHistoryError, setTransferHistoryError] = useState('');
+  const [editTransferIdx, setEditTransferIdx] = useState(null);
+  const [editTransferQty, setEditTransferQty] = useState('');
+  const [editTransferLoading, setEditTransferLoading] = useState(false);
+  const [editTransferError, setEditTransferError] = useState('');
+  const [deleteTransferLoadingIdx, setDeleteTransferLoadingIdx] = useState(null);
 
   // Fetch medicines on component mount
   useEffect(() => {
@@ -155,7 +159,6 @@ const ClinicInventory = () => {
     }
     setTransferLoading(false);
   };
-
   const fetchTransferHistory = async () => {
     setTransferHistoryLoading(true);
     setTransferHistoryError('');
@@ -167,6 +170,56 @@ const ClinicInventory = () => {
       setTransferHistory([]);
     }
     setTransferHistoryLoading(false);
+  };
+  
+  // Edit transfer record handler
+  const handleEditTransferSave = async (idx, rec) => {
+    setEditTransferLoading(true);
+    setEditTransferError('');
+    if (!editTransferQty || Number(editTransferQty) <= 0) {
+      setEditTransferError('Invalid quantity.');
+      setEditTransferLoading(false);
+      return;
+    }
+    try {
+      await API.put(`/api/medicines/transfer/history/${rec._id}`, {
+        quantity: Number(editTransferQty)
+      });
+      // Update local transferHistory
+      const updated = [...transferHistory];
+      updated[idx] = { ...rec, quantity: Number(editTransferQty) };
+      setTransferHistory(updated);
+      setEditTransferIdx(null);
+      setEditTransferQty('');
+      setEditTransferError('');
+      // Optionally, refresh medicines
+      setLoading(true);
+      const res = await API.get(`/api/medicines?clinic=${userClinic}`);
+      setMedicines(res.data);
+      setLoading(false);
+    } catch (err) {
+      setEditTransferError(err.response?.data?.message || 'Failed to update record');
+    }
+    setEditTransferLoading(false);
+  };
+
+  // Delete transfer record handler
+  const handleDeleteTransfer = async (idx, rec) => {
+    if (!window.confirm('Are you sure you want to delete this transfer record? This will revert the stock change.')) return;
+    setDeleteTransferLoadingIdx(idx);
+    try {
+      await API.delete(`/api/medicines/transfer/history/${rec._id}`);
+      // Remove from local transferHistory
+      setTransferHistory(transferHistory.filter((_, i) => i !== idx));
+      // Optionally, refresh medicines
+      setLoading(true);
+      const res = await API.get(`/api/medicines?clinic=${userClinic}`);
+      setMedicines(res.data);
+      setLoading(false);
+    } catch (err) {
+      alert(err.response?.data?.message || 'Failed to delete record');
+    }
+    setDeleteTransferLoadingIdx(null);
   };
 
   return (
@@ -274,25 +327,60 @@ const ClinicInventory = () => {
                 <div style={{ color: '#888', fontWeight: 500 }}>No transfer records found.</div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 16 }}>
-                    <thead>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 16 }}>                    <thead>
                       <tr style={{ background: '#e3eaf2' }}>
                         <th style={{ padding: 10 }}>Date</th>
                         <th style={{ padding: 10 }}>Medicine</th>
                         <th style={{ padding: 10 }}>Quantity</th>
                         <th style={{ padding: 10 }}>From</th>
                         <th style={{ padding: 10 }}>To</th>
+                        <th style={{ padding: 10, textAlign: 'center' }}>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {transferHistory.map((rec, idx) => (
-                        <tr key={idx} style={{ borderBottom: '1px solid #e3eaf2' }}>
-                          <td style={{ padding: 10 }}>{new Date(rec.date).toLocaleString('en-GB')}</td>
-                          <td style={{ padding: 10 }}>{rec.medicineName}</td>
-                          <td style={{ padding: 10 }}>{rec.quantity}</td>
-                          <td style={{ padding: 10 }}>{rec.fromClinic}</td>
-                          <td style={{ padding: 10 }}>{rec.toClinic}</td>
-                        </tr>
+                        editTransferIdx === idx ? (
+                          <tr key={idx} style={{ borderBottom: '1px solid #e3eaf2', background: '#f3f6fa' }}>
+                            <td style={{ padding: 10 }}>{new Date(rec.date).toLocaleString('en-GB')}</td>
+                            <td style={{ padding: 10 }}>{rec.medicineName}</td>
+                            <td style={{ padding: 10 }}>
+                              <input
+                                type="number"
+                                min="1"
+                                value={editTransferQty}
+                                onChange={e => setEditTransferQty(e.target.value)}
+                                style={{ width: 70 }}
+                              />
+                            </td>
+                            <td style={{ padding: 10 }}>{rec.fromClinic}</td>
+                            <td style={{ padding: 10 }}>{rec.toClinic}</td>
+                            <td style={{ padding: 10, textAlign: 'center' }}>
+                              <button className="main-action-btn" style={{ background: '#1976d2', fontSize: 14, marginRight: 6 }} onClick={() => handleEditTransferSave(idx, rec)} disabled={editTransferLoading}>
+                                {editTransferLoading ? <LoadingSpinner size="xsmall" /> : 'Save'}
+                              </button>
+                              <button className="main-action-btn" style={{ background: '#e0e0e0', color: '#1976d2', fontSize: 14 }} onClick={() => setEditTransferIdx(null)}>
+                                Cancel
+                              </button>
+                              {editTransferError && <div className="error">{editTransferError}</div>}
+                            </td>
+                          </tr>
+                        ) : (
+                          <tr key={idx} style={{ borderBottom: '1px solid #e3eaf2' }}>
+                            <td style={{ padding: 10 }}>{new Date(rec.date).toLocaleString('en-GB')}</td>
+                            <td style={{ padding: 10 }}>{rec.medicineName}</td>
+                            <td style={{ padding: 10 }}>{rec.quantity}</td>
+                            <td style={{ padding: 10 }}>{rec.fromClinic}</td>
+                            <td style={{ padding: 10 }}>{rec.toClinic}</td>
+                            <td style={{ padding: 10, textAlign: 'center' }}>
+                              <button className="main-action-btn" style={{ background: '#1976d2', fontSize: 14, marginRight: 6 }} onClick={() => { setEditTransferIdx(idx); setEditTransferQty(rec.quantity); setEditTransferError(''); }}>
+                                Edit
+                              </button>
+                              <button className="main-action-btn" style={{ background: '#c62828', color: '#fff', fontSize: 14 }} onClick={() => handleDeleteTransfer(idx, rec)} disabled={deleteTransferLoadingIdx === idx}>
+                                {deleteTransferLoadingIdx === idx ? <LoadingSpinner size="xsmall" /> : 'Delete'}
+                              </button>
+                            </td>
+                          </tr>
+                        )
                       ))}
                     </tbody>
                   </table>
