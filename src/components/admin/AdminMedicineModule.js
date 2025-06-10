@@ -203,13 +203,17 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
     fuzzyMatch(med.name, tableSearch)
   );
 
-  return (    <div className="auth-container" style={{ 
-        maxWidth: 1100, 
-        margin: '110px auto 40px auto', 
-        padding: 24, 
-        position: 'relative',
-        zIndex: 5
-      }}>
+  // Calculate total stock price for filtered medicines
+  const totalStockPrice = filteredMedicines.reduce((sum, med) => sum + (Number(med.purchasePrice) * Number(med.quantity)), 0);
+
+  return (
+    <div className="auth-container" style={{ 
+      maxWidth: 1100, 
+      margin: '110px auto 40px auto', 
+      padding: 24, 
+      position: 'relative',
+      zIndex: 5
+    }}>
       <h2 style={{ color: '#1976d2', fontWeight: 800, marginBottom: 18, display: 'flex', alignItems: 'center', gap: 10 }}>
         <FaPills /> Medicine Management
       </h2>
@@ -220,6 +224,10 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
             <option key={clinic} value={clinic}>{clinic}</option>
           ))}
         </select>
+      </div>
+      {/* Total Stock Price Display */}
+      <div style={{ marginBottom: 18, fontWeight: 700, fontSize: 20, color: '#1976d2', background: '#f3f6fa', borderRadius: 8, padding: '12px 18px', display: 'inline-block' }}>
+        Total Stock Price: <span style={{ color: '#2e7d32' }}>Rs. {totalStockPrice.toLocaleString('en-PK', { maximumFractionDigits: 2 })}</span>
       </div>
       {/* Add Medicine button always shows the form */}
       {!showForm && (
