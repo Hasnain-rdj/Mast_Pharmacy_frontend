@@ -1,13 +1,16 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { FaEnvelope, FaLock } from 'react-icons/fa';
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import API from '../api';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
+import LoadingSpinner from './common/LoadingSpinner';
 
 const Login = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = React.useState(false);
+
   React.useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
@@ -18,10 +21,11 @@ const Login = () => {
       }
     }
   }, [navigate]);
+
   return (
     <div className="auth-container login-form">
       <div className="auth-logo-wrapper">
-        <img src="/logo192.png" alt="Mast Pharmacy Logo" className="auth-logo" />
+        <img src="/favicon.ico" alt="Mast Pharmacy Logo" className="auth-logo" />
       </div>
       <h2 style={{ color: '#1976d2', fontWeight: 800, marginBottom: 4 }}>Welcome Back</h2>
       <p style={{ color: '#6b7280', marginBottom: 18, fontSize: '1.05rem' }}>Login to your Mast Pharmacy account</p>
@@ -60,15 +64,24 @@ const Login = () => {
               <Field name="email" type="email" placeholder="Email" />
             </div>
             <ErrorMessage name="email" component="div" className="error" />
-            <div className="input-group">
+            <div className="input-group" style={{ position: 'relative' }}>
               <FaLock />
-              <Field name="password" type="password" placeholder="Password" />
+              <Field name="password" type={showPassword ? 'text' : 'password'} placeholder="Password" />
+              <span
+                style={{ position: 'absolute', right: 12, cursor: 'pointer', color: '#1976d2', zIndex: 10 }}
+                onClick={() => setShowPassword(v => !v)}
+                tabIndex={0}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
             <ErrorMessage name="password" component="div" className="error" />
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
               <Field type="checkbox" name="remember" id="remember" style={{ marginRight: 8 }} />
               <label htmlFor="remember" style={{ fontSize: 15, color: '#555', cursor: 'pointer' }}>Remember me?</label>
             </div>
+            {isSubmitting && <LoadingSpinner size="small" color="primary" />}
             <button type="submit" disabled={isSubmitting}>
               Login
             </button>

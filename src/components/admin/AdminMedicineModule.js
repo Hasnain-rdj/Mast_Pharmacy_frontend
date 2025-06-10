@@ -4,7 +4,7 @@ import { FaPills, FaPlus, FaClinicMedical, FaSearch, FaEdit, FaChartBar, FaTrash
 import '../Auth.css';
 
 const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState([]);
-  const [form, setForm] = useState({ name: '', quantity: '', purchasePrice: '', clinic: '' });
+  const [form, setForm] = useState({ name: '', quantity: '', purchasePrice: '', clinic: '', expiryDate: '' });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -123,7 +123,7 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
         setSuccess(`${medicineData.name} was successfully added`);
       }
         // Reset form and state
-      setForm({ name: '', quantity: '', purchasePrice: '', clinic: clinicName });
+      setForm({ name: '', quantity: '', purchasePrice: '', clinic: clinicName, expiryDate: '' });
       setEditingId(null);
       setShowForm(false);
       
@@ -140,15 +140,17 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
     setLoading(false);
   };
 
-  const handleEdit = med => {    setForm({
+  const handleEdit = med => {
+    setForm({
       name: med.name,
       quantity: med.quantity,
       purchasePrice: med.purchasePrice,
       clinic: med.clinic,
+      expiryDate: med.expiryDate ? med.expiryDate.substring(0, 10) : '',
     });
     setEditingId(med._id);
     setSearch(med.name);
-    setShowForm(true); // Show form on edit
+    setShowForm(true);
   };  const handleDelete = async id => {
     if (!window.confirm('Are you sure you want to delete this medicine?')) {
       return; // User canceled the deletion
@@ -252,8 +254,12 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
           </div>
           <div className="input-group">
             <input name="quantity" value={form.quantity} onChange={handleChange} placeholder="Quantity" type="number" min="0" required />
-          </div>          <div className="input-group">
+          </div>
+          <div className="input-group">
             <input name="purchasePrice" value={form.purchasePrice} onChange={handleChange} placeholder="Purchase Price" type="number" min="0" required />
+          </div>
+          <div className="input-group">
+            <input name="expiryDate" value={form.expiryDate} onChange={handleChange} placeholder="Expiry Date" type="date" required />
           </div>
           <div style={{ display: 'flex', gap: 16 }}>
             <button
@@ -263,7 +269,7 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
               style={{ background: '#1976d2', color: '#fff', fontWeight: 700, fontSize: 16 }}
             >
               {editingId ? <><FaEdit /> Edit</> : <><FaPlus /> Add</>}
-            </button>            <button type="button" className="main-action-btn" style={{ background: '#e0e0e0', color: '#1976d2', fontWeight: 700, fontSize: 16 }} onClick={() => { setShowForm(false); setEditingId(null); setForm({ name: '', quantity: '', purchasePrice: '', clinic: selectedClinic }); }}>
+            </button>            <button type="button" className="main-action-btn" style={{ background: '#e0e0e0', color: '#1976d2', fontWeight: 700, fontSize: 16 }} onClick={() => { setShowForm(false); setEditingId(null); setForm({ name: '', quantity: '', purchasePrice: '', clinic: selectedClinic, expiryDate: '' }); }}>
               Cancel
             </button>
           </div>
@@ -327,6 +333,7 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
                   <th style={{ padding: '12px 16px' }}><FaPills /> Name</th>
                   <th style={{ padding: '12px 16px' }}>Quantity</th>
                   <th style={{ padding: '12px 16px' }}>Purchase Price</th>
+                  <th style={{ padding: '12px 16px' }}>Expiry Date</th>
                   <th style={{ padding: '12px 16px' }}><FaClinicMedical /> Clinic</th>
                   <th style={{ padding: '12px 16px' }}>Actions</th>
                 </tr>
@@ -337,6 +344,9 @@ const AdminMedicineModule = () => {  const [medicines, setMedicines] = useState(
                     <td style={{ padding: '10px 12px' }}>{med.name}</td>
                     <td style={{ padding: '10px 12px' }}>{med.quantity}</td>
                     <td style={{ padding: '10px 12px' }}>{med.purchasePrice}</td>
+                    <td style={{ padding: '10px 12px', textAlign: 'center', color: med.expiryDate && new Date(med.expiryDate) <= new Date(Date.now() + 1000*60*60*24*90) ? '#d32f2f' : undefined, fontWeight: med.expiryDate && new Date(med.expiryDate) <= new Date(Date.now() + 1000*60*60*24*90) ? 700 : undefined }}>
+                      {med.expiryDate ? `${new Date(med.expiryDate).toLocaleDateString('en-GB')} (${Math.max(0, Math.ceil((new Date(med.expiryDate) - new Date('2025-06-10')) / (1000*60*60*24)))} days left)` : '-'}
+                    </td>
                     <td style={{ padding: '10px 12px' }}>{med.clinic}</td>
                     <td style={{ padding: '10px 12px' }}>
                       <button onClick={() => handleEdit(med)} style={{ marginRight: 8, background: '#42a5f5', color: '#fff', border: 'none', borderRadius: 4, padding: '6px 14px', fontWeight: 600, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6 }}><FaEdit style={{ marginRight: 4 }} /> Edit</button>

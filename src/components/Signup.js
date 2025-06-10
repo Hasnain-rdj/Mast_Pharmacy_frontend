@@ -1,13 +1,24 @@
 import React from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { FaUser, FaLock, FaEnvelope, FaClinicMedical, FaUserCircle } from 'react-icons/fa';
+import { FaUser, FaLock, FaEnvelope, FaClinicMedical, FaUserCircle, FaEye, FaEyeSlash } from 'react-icons/fa';
 import API from '../api';
 import { useNavigate, Link } from 'react-router-dom';
 import './Auth.css';
+import LoadingSpinner from './common/LoadingSpinner';
 
 const Signup = () => {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = React.useState(false);
+  const [adminExists, setAdminExists] = React.useState(false);
+
+  // Check if admin exists on mount
+  React.useEffect(() => {
+    API.get('/api/auth/admin-exists').then(res => {
+      setAdminExists(res.data.exists);
+    });
+  }, []);
+
   return (
     <div className="auth-container signup-form">
       <div className="auth-logo-wrapper">
@@ -29,6 +40,11 @@ const Signup = () => {
         })}
         onSubmit={async (values, { setSubmitting, setStatus }) => {
           try {
+            if (values.role === 'admin' && adminExists) {
+              setStatus({ error: 'An admin account already exists. Only one admin is allowed.' });
+              setSubmitting(false);
+              return;
+            }
             await API.post('/api/auth/signup', values);
             setStatus({ success: 'Signup successful! Please login.' });
             setTimeout(() => navigate('/login'), 1000);
@@ -50,9 +66,17 @@ const Signup = () => {
               <Field name="email" type="email" placeholder="Email" />
             </div>
             <ErrorMessage name="email" component="div" className="error" />
-            <div className="input-group">
+            <div className="input-group" style={{ position: 'relative' }}>
               <FaLock />
-              <Field name="password" type="password" placeholder="Password" />
+              <Field name="password" type={showPassword ? 'text' : 'password'} placeholder="Password" />
+              <span
+                style={{ position: 'absolute', right: 12, cursor: 'pointer', color: '#1976d2', zIndex: 10 }}
+                onClick={() => setShowPassword(v => !v)}
+                tabIndex={0}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
             <ErrorMessage name="password" component="div" className="error" />
             <div className="input-group">
@@ -76,7 +100,13 @@ const Signup = () => {
                 <ErrorMessage name="clinic" component="div" className="error" />
               </>
             )}
-            <button type="submit" disabled={isSubmitting}>
+            {values.role === 'admin' && adminExists && (
+              <div className="error" style={{ marginBottom: 8 }}>
+                An admin account already exists. Only one admin is allowed.
+              </div>
+            )}
+            {isSubmitting && <LoadingSpinner size="small" color="primary" />}
+            <button type="submit" disabled={isSubmitting || (values.role === 'admin' && adminExists)}>
               Sign Up
             </button>
             {status && status.error && <div className="error">{status.error}</div>}
